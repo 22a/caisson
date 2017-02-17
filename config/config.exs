@@ -10,8 +10,11 @@ config :caisson, lang_proc: %{
     "python payload"
   ],
   "c" => [
-    "gcc -x c payload",
-    "./a.out"
+    "gcc -x c payload -o /tmp/a.out",
+    "/tmp/a.out"
+  ],
+  "bash" => [
+    "/bin/bash payload"
   ]
 }
 
