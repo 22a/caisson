@@ -4,8 +4,15 @@ use Mix.Config
 
 # map of the different compilation/execution procedures for the different
 # supported languages
+# TODO: add more languages
 config :caisson, lang_proc: %{
-  "python" => ["python"]
+  "python" => [
+    "python payload"
+  ],
+  "c" => [
+    "gcc -x c payload",
+    "./a.out"
+  ]
 }
 
 # This configuration is loaded before any dependency and is restricted

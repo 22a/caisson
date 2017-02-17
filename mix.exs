@@ -15,7 +15,7 @@ defmodule Caisson.Mixfile do
   # Type "mix help compile.app" for more information
   def application do
     # Specify extra applications you'll use from Erlang/Elixir
-    [applications: [:cowboy, :plug],
+    [applications: [:cowboy, :plug, :briefly],
      extra_applications: [:logger],
      mod: {Caisson.Application, []}]
   end
@@ -31,6 +31,7 @@ defmodule Caisson.Mixfile do
   # Type "mix help deps" for more examples and options
   def deps do
     [{:cowboy, "~> 1.0.0"},
+     {:briefly, "~> 0.3.0"},
      {:plug, "~> 1.0"}]
   end
 end

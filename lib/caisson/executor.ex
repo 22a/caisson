@@ -13,11 +13,30 @@ defmodule Caisson.Executor do
       "timelimit" => timelimit,
       "memlimit" => memlimit} = conn.params
 
-    # match on the provided lang choose procedure
-    # IO.inspect @lang_proc
+    {:ok, proc} = gen_proc lang
+    {:ok, proc_path} = Briefly.create
+    File.write!(proc_path, proc)
 
-    {output, exit_status} = System.cmd "bash", ["bin/execute.sh", lang, timelimit, memlimit, payload], stderr_to_stdout: true
+    {:ok, payload_path} = Briefly.create
+    File.write!(payload_path, payload)
 
-    send_resp(conn, 200, "#{output} exited with status #{exit_status}")
+    {output, exit_status} =
+      System.cmd "bash", ["bin/execute.sh",
+                          lang,
+                          timelimit,
+                          memlimit,
+                          payload_path,
+                          proc_path], stderr_to_stdout: true
+
+    send_resp(conn, 200, "#{output}")
+  end
+
+  defp gen_proc(lang) do
+    case Map.has_key?(@lang_proc, lang) do
+      true ->
+        {:ok, Enum.join(@lang_proc[lang], " && ")}
+      false ->
+        {:error, :unsupported_lang}
+    end
   end
 end
