@@ -4,18 +4,23 @@ use Mix.Config
 
 # map of the different compilation/execution procedures for the different
 # supported languages
-# TODO: add more languages
+# TODO: add more languages, build custom images instead of depending on others
 config :caisson, lang_proc: %{
-  "python" => [
-    "python payload"
-  ],
-  "c" => [
-    "gcc -x c payload -o /tmp/a.out",
-    "/tmp/a.out"
-  ],
-  "bash" => [
-    "/bin/bash payload"
-  ]
+  "python" => %{
+    image: "python:alpine",
+    compile_cmd: "",
+    execute_cmd: "python payload"
+  },
+  "c" => %{
+    image: "frolvlad/alpine-gcc",
+    compile_cmd: "gcc -x c payload -o /tmp/a.out",
+    execute_cmd: "/tmp/a.out"
+  },
+  "bash" => %{
+    image: "yikaus/alpine-bash",
+    compile_cmd: "",
+    execute_cmd: "/bin/bash payload"
+  }
 }
 
 # This configuration is loaded before any dependency and is restricted

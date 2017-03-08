@@ -13,7 +13,9 @@ defmodule Caisson.Executor do
       "timelimit" => timelimit,
       "memlimit" => memlimit} = conn.params
 
-    {:ok, proc} = gen_proc lang
+    # TODO: handle case where lang is unsupported
+    {:ok, {proc, image}} = get_metadata lang
+
     {:ok, proc_path} = Briefly.create
     File.write!(proc_path, proc)
 
@@ -26,17 +28,27 @@ defmodule Caisson.Executor do
                           timelimit,
                           memlimit,
                           payload_path,
-                          proc_path], stderr_to_stdout: true
+                          proc_path,
+                          image], stderr_to_stdout: true
 
-    send_resp(conn, 200, "#{output}")
+    send_resp(conn, 200, "#{exit_status}\n#{output}")
   end
 
-  defp gen_proc(lang) do
-    case Map.has_key?(@lang_proc, lang) do
-      true ->
-        {:ok, Enum.join(@lang_proc[lang], " && ")}
-      false ->
-        {:error, :unsupported_lang}
+  defp get_metadata(lang) do
+    if Map.has_key?(@lang_proc, lang) do
+      image = @lang_proc[lang][:image]
+      compile_cmd = @lang_proc[lang][:compile_cmd]
+      execute_cmd = @lang_proc[lang][:execute_cmd]
+      proc =
+        case compile_cmd do
+          "" ->
+            execute_cmd
+          _ ->
+            "#{compile_cmd} && #{execute_cmd}"
+        end
+      {:ok, {proc, image}}
+    else
+      {:error, :unsupported_lang}
     end
   end
 end
