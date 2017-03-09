@@ -9,14 +9,14 @@ docker_image=$6
 
 # set up execution env TODO: apply sec patches
 # spawn container from image
-con_hash=$(docker run -dt --network=none --user=nobody --cap-drop=all $docker_image /bin/sh)
+con_hash=$(sudo docker run -dt --network=none --user=nobody --cap-drop=all $docker_image /bin/sh)
 # inject procedure script
-docker cp $proc_path $con_hash:/exec.sh
+sudo docker cp $proc_path $con_hash:/exec.sh
 # inject payload
-docker cp $payload_path $con_hash:/payload
+sudo docker cp $payload_path $con_hash:/payload
 
 # compile/execute the payload TODO: incorporate limits here
-docker exec $con_hash /bin/sh exec.sh
+sudo docker exec $con_hash /bin/sh exec.sh
 
 # kill the container
-docker rm -f $con_hash > /dev/null
+sudo docker rm -f $con_hash > /dev/null
