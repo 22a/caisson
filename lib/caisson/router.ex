@@ -3,7 +3,6 @@ defmodule Caisson.Router do
 
   plug Plug.Logger
   plug :match
-  plug Plug.Parsers, parsers: [:urlencoded]
   plug :dispatch
 
   get "/" do

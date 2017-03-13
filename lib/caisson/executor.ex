@@ -8,10 +8,11 @@ defmodule Caisson.Executor do
   end
 
   def call(conn, _opts) do
-    %{"payload" => payload,
+    {:ok, body, _thing} = read_body conn
+    {:ok, %{"payload" => payload,
       "lang" => lang,
       "timelimit" => timelimit,
-      "memlimit" => memlimit} = conn.params
+      "memlimit" => memlimit}} = Poison.decode(body)
 
     # TODO: handle case where lang is unsupported
     {:ok, {proc, image}} = get_metadata lang
@@ -31,7 +32,8 @@ defmodule Caisson.Executor do
                           proc_path,
                           image], stderr_to_stdout: true
 
-    send_resp(conn, 200, "#{exit_status}\n#{output}")
+    resp_json = Poison.encode!(%{exit_status: exit_status, output: output})
+    send_resp(conn, 200, resp_json)
   end
 
   defp get_metadata(lang) do

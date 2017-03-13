@@ -32,6 +32,7 @@ defmodule Caisson.Mixfile do
   def deps do
     [{:cowboy, "~> 1.0.0"},
      {:briefly, "~> 0.3.0"},
+     {:poison, "~> 3.0"},
      {:plug, "~> 1.0"}]
   end
 end
