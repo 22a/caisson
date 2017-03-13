@@ -12,7 +12,7 @@ defmodule Caisson.Application do
     children = [
       # Starts a worker by calling: Caisson.Worker.start_link(arg1, arg2, arg3)
       # worker(Caisson.Worker, [arg1, arg2, arg3]),
-      Plug.Adapters.Cowboy.child_spec(:http, Caisson.Router, [], [port: 4001])
+      Plug.Adapters.Cowboy.child_spec(:http, Caisson.Router, [], [ip: {127, 0, 0, 1}, port: 4001])
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
