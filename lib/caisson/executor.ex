@@ -14,26 +14,30 @@ defmodule Caisson.Executor do
       "timelimit" => timelimit,
       "memlimit" => memlimit}} = Poison.decode(body)
 
-    # TODO: handle case where lang is unsupported
-    {:ok, {proc, image}} = get_metadata lang
+    case get_metadata lang do
+      {:ok, {proc, image}} ->
+        # TODO: real error handling for these tempfile creations
+        {:ok, proc_path} = Briefly.create
+        File.write!(proc_path, proc)
 
-    {:ok, proc_path} = Briefly.create
-    File.write!(proc_path, proc)
+        {:ok, payload_path} = Briefly.create
+        File.write!(payload_path, payload)
 
-    {:ok, payload_path} = Briefly.create
-    File.write!(payload_path, payload)
+        {output, exit_status} =
+          System.cmd "bash", ["bin/execute.sh",
+                              lang,
+                              timelimit,
+                              memlimit,
+                              payload_path,
+                              proc_path,
+                              image], stderr_to_stdout: true
 
-    {output, exit_status} =
-      System.cmd "bash", ["bin/execute.sh",
-                          lang,
-                          timelimit,
-                          memlimit,
-                          payload_path,
-                          proc_path,
-                          image], stderr_to_stdout: true
+        resp_json = Poison.encode!(%{exit_status: exit_status, output: output})
+        send_resp(conn, 200, resp_json)
 
-    resp_json = Poison.encode!(%{exit_status: exit_status, output: output})
-    send_resp(conn, 200, resp_json)
+      {:error, :unsupported_lang} ->
+        send_resp(conn, 422, "unsupported lanugage: #{lang}")
+    end
   end
 
   defp get_metadata(lang) do
